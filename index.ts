@@ -1,3 +1,5 @@
+import { countBy } from "lodash"
+
 const w : number = window.innerWidth 
 const h : number = window.innerHeight 
 const parts : number = 4 
@@ -208,3 +210,25 @@ class BallLineComplete {
         this.curr.startUpdating(cb)
     }
 }   
+
+class Renderer {
+
+    animator : Animator = new Animator()
+    blc : BallLineComplete = new BallLineComplete()
+
+    render(context : CanvasRenderingContext2D) {
+        this.blc.draw(context)
+    }
+
+    handleTap(cb : Function) {
+        this.blc.startUpdating(() => {
+            this.animator.start(() => {
+                cb()
+                this.blc.update(() => {
+                    this.animator.stop()
+                    cb()
+                })
+            })
+        })
+    }
+}
