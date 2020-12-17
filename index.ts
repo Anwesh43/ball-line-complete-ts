@@ -13,6 +13,7 @@ const colors : Array<string> = [
 ] 
 const backColor : string = "#BDBDBD"
 const delay : number = 20 
+const rFactor : number = 30.3 
 
 class ScaleUtil {
 
@@ -20,7 +21,7 @@ class ScaleUtil {
         return Math.max(0, scale - i / n)
     }
     static divideScale(scale : number, i : number, n : number) : number {
-        return Math.min()
+        return Math.min(1 / n, ScaleUtil.maxScale(scale, i, n)) * n 
     }
 
     static sinify(scale : number) : number {
@@ -44,20 +45,24 @@ class DrawingUtil {
     }
 
     static drawBallLine(context : CanvasRenderingContext2D, scale : number) {
-        const sc1 : number = ScaleUtil.divideScale(scale, 0, 2)
-        const sc2 : number = ScaleUtil.divideScale(scale, 1, 2)
+        const sc1 : number = ScaleUtil.divideScale(scale, 0, 3)
+        const sc2 : number = ScaleUtil.divideScale(scale, 1, 3)
+        const sc3 : number = ScaleUtil.divideScale(scale, 2, 3)
         const size : number = Math.min(w, h) / sizeFactor 
-        const r : number = Math.min(w, h) / 15
+        const r : number = Math.min(w, h) / rFactor
         context.save()
         context.translate(w / 2, h / 2)
-        DrawingUtil.drawLine(context, -size + 2 * size * sc2, 0, -size + 2 * size * sc1, 0)
+        DrawingUtil.drawLine(context, -size + 2 * size * sc3, 0, -size + 2 * size * sc2, 0)
         var j = 0 
         const gap : number = (2 * size) / parts 
         var scTotal = 0 
         for (var j = 0; j < parts; j++) {
-            scTotal += ScaleUtil.sinify(ScaleUtil.divideScale(sc1, j, parts))
+            scTotal += ScaleUtil.sinify(ScaleUtil.divideScale(sc2, j, parts))
         }
-        DrawingUtil.drawCircle(context, -size + 2 * size * sc1, -gap * scTotal, r * (1 - sc2))
+        for (var j = 0; j < 2; j++) {
+            DrawingUtil.drawCircle(context, -size + 2 * size * sc2, gap * scTotal * (1 - 2 * j), r * (sc1 - sc3))
+        }
+        
         context.restore()
     }
 
@@ -166,6 +171,7 @@ class BLCNode {
     }
 
     draw(context : CanvasRenderingContext2D) {
+        console.log(this.i, this.state.scale)
         DrawingUtil.drawBLCNode(context, this.i, this.state.scale)
     }
 
